@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>로그인</title>
+    <!-- <link rel="stylesheet" th:href="@{/css/base.css}">
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}"> -->
+    <script src="http://code.jquery.com/jquery-latest.min.js"></script>
+    
+     <style>
+		.area {
+		    position: absolute;
+		    background: #fff;
+		    border: 1px solid #888;
+		    border-radius: 3px;
+		    font-size: 12px;
+		    top: -5px;
+		    left: 15px;
+		    padding:2px;
+		}
+		
+		.info {
+		    font-size: 12px;
+		    padding: 5px;
+		}
+		.info .title {
+		    font-weight: bold;
+		}
+	</style>
+</head>
+
+<body>
+
+    
+    <div>
+    	<button id="ajaxBtn">ajax버튼</button>
+    </div>
+    <div id="map" style="width:1000px;height:600px;"></div>
+    <script type="text/javascript" src="/proj4js/lib/proj4js-combined.js"></script>
+    
+    <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=150abbb98b21830b86156efff9ae40f0&libraries=services"></script>
+    <script type="text/javascript">
+	    Proj4js.reportError = function(msg) { alert(msg); }
+	    Proj4js.defs['WGS84경위도'] = '+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs';
+	    Proj4js.defs['BESSEL경위도'] = 
+	        '+proj=longlat +ellps=bessel +towgs84=-146.43,507.89,681.46 +no_defs'; 
+	     
+	    var wgs84 = new Proj4js.Proj('WGS84경위도');
+	    var bessel = new Proj4js.Proj('BESSEL경위도');
+    	
+    	var polygons = [];
+
+	    var mapContainer = document.getElementById('map'), // 지도를 표시할 div 
+	        mapOption = { 
+	            center: new kakao.maps.LatLng(37.566826, 126.9786567), // 지도의 중심좌표
+	            level: 8 // 지도의 확대 레벨
+	        };
+	
+	    var map = new kakao.maps.Map(mapContainer, mapOption),
+	        customOverlay = new kakao.maps.CustomOverlay({}),
+	        infowindow = new kakao.maps.InfoWindow({removable: true});
+	    
+	    $(function() {
+	    	var jobj = <c:out value="{jobj}"/>;
+	    	var data		= jobj.features,
+    		coordinates	= [],
+    		name		= "";
+        
+	        $.each(data, function(index, val) {
+	        	
+	        	coordinates = val.geometry.coordinates;
+	        	name		= val.properties.SIG_KOR_NM;
+	        	
+	        	displayArea(coordinates,name);
+	        })
+	    })
+	    
+		/* $("#ajaxBtn").on("click",function() {
+        	
+        	var data = {
+        			name : "이철진"
+        	}
+        	
+        	 $.ajax({
+			        type		: "POST",
+			        url 		: "ajaxMap",
+			        data		:  JSON.stringify(data), 
+			        contentType : "application/json",
+			        success 	: function(jobj) {
+			            
+			        	
+			        },
+			        error		: function(error) {
+			        	console.log(error);
+			        }
+			    });
+        	
+        }); */
+        
+        function displayArea(coordinates, name) {
+        	var path	= [],
+        		points	= [];
+        	
+        	$.each(coordinates[0],function(index,coordinate) {
+        		
+        		var p = new Proj4js.Point(coordinate[0], coordinate[1]);
+        		
+        		Proj4js.transform(wgs84, bessel, p);
+        		
+        		console.log(p.x+","+p.y);
+        		
+        		path.push(new kakao.maps.LatLng(p.y, p.x));
+        		
+        	});
+        	
+        	// 다각형을 생성합니다 
+            var polygon = new kakao.maps.Polygon({
+                map: map, // 다각형을 표시할 지도 객체
+                path: path,
+                strokeWeight: 2,
+                strokeColor: '#004c80',
+                strokeOpacity: 0.8,
+                fillColor: '#fff',
+                fillOpacity: 0.7 
+            });
+        	
+        	polygons.push(polygon);
+        	
+        	// 다각형에 mouseover 이벤트를 등록하고 이벤트가 발생하면 폴리곤의 채움색을 변경합니다 
+            // 지역명을 표시하는 커스텀오버레이를 지도위에 표시합니다
+            kakao.maps.event.addListener(polygon, 'mouseover', function(mouseEvent) {
+                polygon.setOptions({fillColor: '#09f'});
+
+                customOverlay.setContent('<div class="area">' + name + '</div>');
+                
+                customOverlay.setPosition(mouseEvent.latLng); 
+                customOverlay.setMap(map);
+            });
+
+            // 다각형에 mousemove 이벤트를 등록하고 이벤트가 발생하면 커스텀 오버레이의 위치를 변경합니다 
+            kakao.maps.event.addListener(polygon, 'mousemove', function(mouseEvent) {
+                
+                customOverlay.setPosition(mouseEvent.latLng); 
+            });
+
+            // 다각형에 mouseout 이벤트를 등록하고 이벤트가 발생하면 폴리곤의 채움색을 원래색으로 변경합니다
+            // 커스텀 오버레이를 지도에서 제거합니다 
+            kakao.maps.event.addListener(polygon, 'mouseout', function() {
+                polygon.setOptions({fillColor: '#fff'});
+                customOverlay.setMap(null);
+            }); 
+
+            // 다각형에 click 이벤트를 등록하고 이벤트가 발생하면 다각형의 이름과 면적을 인포윈도우에 표시합니다 
+            kakao.maps.event.addListener(polygon, 'click', function(mouseEvent) {
+                var content = '<div class="info">' + 
+                            '   <div class="title">' + name + '</div>' +
+                            '   <div class="size">총 면적 : 약 ' + Math.floor(polygon.getArea()) + ' m<sup>2</sup></area>' +
+                            '</div>';
+
+                infowindow.setContent(content); 
+                infowindow.setPosition(mouseEvent.latLng); 
+                infowindow.setMap(map);
+                //console.log(mouseEvent.latLng);
+                //var latlng = null;
+                
+                
+            });
+        }
+        
+        $(".btn_social").click(function() {
+            var socialType = $(this).data("social");
+            location.href = "/oauth2/authorization/" + socialType;
+        });
+   </script>
+</body>
+</html>

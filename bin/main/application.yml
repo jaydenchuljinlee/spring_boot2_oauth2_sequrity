@@ -1,0 +1,35 @@
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: google-client-id
+            client-secret: google-client-secret
+          facebook:
+            client-id: 1541816019295932
+            client-secret: cd389cfabd54b39bd190aca4e5af2a42
+  datasource: # <- 추가
+    url: jdbc:mysql://cheoljin.c8emnh0bb9pj.us-east-2.rds.amazonaws.com:3306/cheoljin
+    driverClassName: com.mysql.cj.jdbc.Driver
+    username: cheoljin
+    password: cj12345678
+  jpa:
+    properties:
+      hibernate:
+        ddl-auto: update
+        #show_sql: true
+        format_sql: true
+
+custom:
+  oauth2:
+    kakao:
+      client-id: e21cb4451ee07acedcbfa215bda04842
+
+
+
+logging:
+  level:
+    com:
+      community: debug
+
