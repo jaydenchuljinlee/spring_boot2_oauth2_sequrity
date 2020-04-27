@@ -19,7 +19,7 @@ public class Oauth2Controller {
     private final Gson gson;
     private final RestTemplate restTemplate;
 
-    @GetMapping("/code")
+    @GetMapping({"/code","/token/refresh"})
     public OAuthToken redirectSocial(@RequestParam String code) throws Exception {
 
         String credentials = "testClientId:testSecret";
@@ -43,7 +43,6 @@ public class Oauth2Controller {
         }
 
         return null;
-
 
     }
 }

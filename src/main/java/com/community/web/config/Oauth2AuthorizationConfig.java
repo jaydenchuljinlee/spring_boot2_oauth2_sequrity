@@ -1,6 +1,8 @@
 package com.community.web.config;
 
+import com.community.web.service.CustomUserDetailService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -9,6 +11,7 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.A
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableAuthorizationServer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerEndpointsConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerSecurityConfigurer;
+import org.springframework.security.oauth2.provider.token.store.JdbcTokenStore;
 import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
 
 import javax.sql.DataSource;
@@ -27,10 +30,19 @@ public class Oauth2AuthorizationConfig extends AuthorizationServerConfigurerAdap
 
     private final PasswordEncoder passwordEncoder;
     private final DataSource dataSource;
+    private final CustomUserDetailService customUserDetailService;
+
+    @Value("${spring.security.oauth2.jwt.signkey}")
+    private String signkey;
 
     @Bean
     public JwtAccessTokenConverter jwtAccessTokenConverter() {
-        return new JwtAccessTokenConverter();
+
+        JwtAccessTokenConverter converter = new JwtAccessTokenConverter();
+
+        converter.setSigningKey(signkey);
+
+        return converter;
     }
 
     @Override
@@ -54,6 +66,7 @@ public class Oauth2AuthorizationConfig extends AuthorizationServerConfigurerAdap
     @Override
     public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
         super.configure(endpoints);
-        endpoints.accessTokenConverter(jwtAccessTokenConverter());
+        //endpoints.tokenStore(new JdbcTokenStore(dataSource)).userDetailsService(customUserDetailService);
+        endpoints.accessTokenConverter(jwtAccessTokenConverter()).userDetailsService(customUserDetailService);
     }
 }

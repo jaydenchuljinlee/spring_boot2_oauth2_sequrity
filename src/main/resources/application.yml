@@ -9,6 +9,9 @@ spring:
           facebook:
             client-id: 1541816019295932
             client-secret: cd389cfabd54b39bd190aca4e5af2a42
+      resourceserver:
+        jwt:
+          signkey : 123@#$
 
   datasource: # <- 추가
     url: jdbc:mysql://localhost:3306/cheoljin?characterEncoding=UTF-8&serverTimezone=UTC
