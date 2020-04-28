@@ -14,69 +14,50 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.oauth2.client.CommonOAuth2Provider;
-import org.springframework.security.crypto.factory.PasswordEncoderFactories;
-import org.springframework.security.crypto.password.DelegatingPasswordEncoder;
-import org.springframework.security.crypto.password.NoOpPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
 import org.springframework.security.oauth2.config.annotation.configurers.ClientDetailsServiceConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableAuthorizationServer;
-import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerEndpointsConfigurer;
-import org.springframework.security.oauth2.provider.token.store.JdbcTokenStore;
-import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.csrf.CsrfFilter;
 import org.springframework.web.filter.CharacterEncodingFilter;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 @Slf4j
-@EnableAuthorizationServer
 @EnableWebSecurity // 웹시큐리티 사용하겠다는 어노테이션
 @Configuration
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return PasswordEncoderFactories.createDelegatingPasswordEncoder();
-    }
-
-
-
     @Autowired
     private CustomAuthenticationProvider authenticationProvider;
 
-
     @Override
-    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+    protected void configure(AuthenticationManagerBuilder auth) {
         auth.authenticationProvider(authenticationProvider);
     }
 
-    //clients resource 설정
+    /*//clients resource 설정
     protected void configure(ClientDetailsServiceConfigurer clients) throws Exception{
 
         clients.inMemory()
                 .withClient("testClient")
                 .secret("testSecret")
-                .redirectUris("http://localhost:8080/login/oauth2/code")
+                .redirectUris("http://localhost:8080/login/oauth2/callback")
                 .authorizedGrantTypes("authorization_code")
                 .scopes("read","write")
                 .accessTokenValiditySeconds(30000);
-    }
+    }*/
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         CharacterEncodingFilter filter = new CharacterEncodingFilter();
 
         http.authorizeRequests()
-                .antMatchers("/","/oauth/**", "/oauth2/**", "/login/**","/css/**", "/images/**", "/js/**", "/console/**")
+                .antMatchers("/","/oauth/**","/oauth2/callback","/oauth/token", "/oauth2/**", "/login/**","/css/**", "/images/**", "/js/**", "/console/**")
                     .permitAll()
                 .antMatchers("/facebook")
                     .hasAnyAuthority(SocialType.FACEBOOK.getRoleType())
@@ -86,14 +67,16 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                     .hasAnyAuthority(SocialType.KAKAO.getRoleType())
                 .anyRequest()
                     .authenticated()
-            .and()
-                .oauth2Login()
-                    .defaultSuccessUrl("/loginSuccess")
-                    .failureUrl("/loginFailure")
+            //.and()
+                //.oauth2Login()
+                  //  .defaultSuccessUrl("/loginSuccess")
+                   // .failureUrl("/loginFailure")
             .and()
                 .headers()
                     .frameOptions().disable()
             .and()
+                .formLogin()
+            /*.and()
                 .exceptionHandling()
                     .authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/login"))
             .and()
@@ -104,10 +87,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                     .logoutUrl("/logout")
                     .logoutSuccessUrl("/")
                     .deleteCookies("JSESSIONID")
-                    .invalidateHttpSession(true)
+                    .invalidateHttpSession(true)*/
             .and()
                 .addFilterBefore(filter, CsrfFilter.class)
-                .csrf().disable();
+                .csrf().disable().httpBasic();
     }
 
     @Bean

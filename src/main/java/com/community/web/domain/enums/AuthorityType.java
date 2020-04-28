@@ -5,11 +5,15 @@ import lombok.Getter;
 @Getter
 public enum AuthorityType {
 
-    USER("user"),ADMIN("admin");
+    USER(0,"user"),ADMIN(1,"admin");
 
-    private String role;
+    private int order;
+    private String type;
 
-    AuthorityType(String role) {
-        this.role = role;
+    AuthorityType(int order,String type) {
+        this.order = order;
+        this.type = type;
     }
+
+    public String getType() {return this.type.toUpperCase();}
 }

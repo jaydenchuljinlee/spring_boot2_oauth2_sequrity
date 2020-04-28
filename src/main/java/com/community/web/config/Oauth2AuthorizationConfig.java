@@ -32,18 +32,6 @@ public class Oauth2AuthorizationConfig extends AuthorizationServerConfigurerAdap
     private final DataSource dataSource;
     private final CustomUserDetailService customUserDetailService;
 
-    @Value("${spring.security.oauth2.jwt.signkey}")
-    private String signkey;
-
-    @Bean
-    public JwtAccessTokenConverter jwtAccessTokenConverter() {
-
-        JwtAccessTokenConverter converter = new JwtAccessTokenConverter();
-
-        converter.setSigningKey(signkey);
-
-        return converter;
-    }
 
     @Override
     public void configure(AuthorizationServerSecurityConfigurer security) {
@@ -60,13 +48,5 @@ public class Oauth2AuthorizationConfig extends AuthorizationServerConfigurerAdap
         clients.jdbc(dataSource).passwordEncoder(passwordEncoder);
     }
 
-    /**
-     * 토큰 발급 방식을 JWT 토큰 방식으로 변경한다. 이렇게 하면 토큰 저장하는 DB Table은 필요가 없다.
-     */
-    @Override
-    public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
-        super.configure(endpoints);
-        //endpoints.tokenStore(new JdbcTokenStore(dataSource)).userDetailsService(customUserDetailService);
-        endpoints.accessTokenConverter(jwtAccessTokenConverter()).userDetailsService(customUserDetailService);
-    }
+
 }

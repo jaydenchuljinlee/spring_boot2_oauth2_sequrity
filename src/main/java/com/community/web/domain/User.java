@@ -1,31 +1,27 @@
 package com.community.web.domain;
 
 import com.community.web.domain.enums.SocialType;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 
 @Builder
-@RequiredArgsConstructor @NoArgsConstructor
+@NoArgsConstructor @AllArgsConstructor
 @Entity @Getter
 public class User implements UserDetails {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_no")
     private Long userNo;
-
-    //권한 테이블 매핑
-    @ManyToOne
-    private Authority authority;
 
     @Column(name = "name")
     private String name;
@@ -39,6 +35,23 @@ public class User implements UserDetails {
     @Column(name = "updated_date")
     private LocalDateTime updatedDate;
 
+    @Column(name = "address_1")
+    private String address1;
+    @Column(name = "address_2")
+    private String address2;
+    @Column(name = "address_3")
+    private String address3;
+    @Column(name = "phone")
+    private String phone;
+    @Column(name = "mileage")
+    private int mileage;
+    @Column(name = "status")
+    private int status;
+    @Column(name = "grade")
+    private int grade;
+    @Column(name = "auth")
+    private String auth;
+
     // OAuth
     @Column(name = "principal")
     private String principal;
@@ -46,33 +59,41 @@ public class User implements UserDetails {
     private SocialType socialType;
 
     //권한 리스트
-    ArrayList<Authority> authorities = new ArrayList<>();
+    @Transient
+    List<? extends GrantedAuthority> authorities;
+
+    public void setAuthorities(List<? extends GrantedAuthority> authorities) {this.authorities = authorities;}
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return this.authorities;
     }
 
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @Override
     public String getUsername() {
         return this.email;
     }
 
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @Override
     public boolean isAccountNonExpired() {
         return false;
     }
 
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @Override
     public boolean isAccountNonLocked() {
         return false;
     }
 
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @Override
     public boolean isCredentialsNonExpired() {
         return false;
     }
 
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @Override
     public boolean isEnabled() {
         return false;

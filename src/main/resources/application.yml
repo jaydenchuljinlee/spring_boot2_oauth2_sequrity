@@ -25,6 +25,7 @@ spring:
         show_sql: true
         format_sql: true
 
+
 custom:
   oauth2:
     kakao:
