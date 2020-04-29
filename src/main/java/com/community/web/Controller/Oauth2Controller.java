@@ -24,8 +24,6 @@ public class Oauth2Controller {
     @GetMapping("/callback")
     public OAuthToken redirectSocial(@RequestParam String code) throws Exception {
 
-        log.info("Oauth2Controller");
-
         String credentials = "testClientId:testSecret";
         String encodedCredentials = new String(Base64.encodeBase64(credentials.getBytes()));
         HttpHeaders headers = new HttpHeaders();
@@ -41,24 +39,40 @@ public class Oauth2Controller {
             return gson.fromJson(response.getBody(), OAuthToken.class);
         }
 
-        log.info("status : bad!");
-
         return null;
     }
 
     @GetMapping(value = "/token/refresh")
-    public OAuthToken refreshToken(@RequestParam String refreshToken) {
+    public OAuthToken refreshToken(@RequestParam String refreshToken) throws Exception {
+
         String credentials = "testClientId:testSecret";
         String encodedCredentials = new String(Base64.encodeBase64(credentials.getBytes()));
+
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
         headers.add("Accept", MediaType.APPLICATION_JSON_VALUE);
         headers.add("Authorization", "Basic " + encodedCredentials);
+
+        log.info("headers : " + headers.toString());
+
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+
+        log.info("params : " + params.toString());
+
         params.add("refresh_token", refreshToken);
         params.add("grant_type", "refresh_token");
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
+
+        log.info("request : " + request.toString());
+
         ResponseEntity<String> response = restTemplate.postForEntity("http://localhost:8080/oauth/token", request, String.class);
+
+        log.info("response : " + response.toString());
+
+        log.info("HttpStatus : " + response.getStatusCode());
+
+        log.info("HttpStatus : " + gson.fromJson(response.getBody(), OAuthToken.class));
+
         if (response.getStatusCode() == HttpStatus.OK) {
             return gson.fromJson(response.getBody(), OAuthToken.class);
         }

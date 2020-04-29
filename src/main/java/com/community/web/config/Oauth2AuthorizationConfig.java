@@ -2,6 +2,7 @@ package com.community.web.config;
 
 import com.community.web.service.CustomUserDetailService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,6 +24,7 @@ import javax.sql.DataSource;
  * /oauth/authorize
  * /oauth/token
  */
+@Slf4j
 @RequiredArgsConstructor
 @Configuration
 @EnableAuthorizationServer
@@ -32,6 +34,16 @@ public class Oauth2AuthorizationConfig extends AuthorizationServerConfigurerAdap
     private final DataSource dataSource;
     private final CustomUserDetailService customUserDetailService;
 
+    @Value("${spring.security.oauth2.jwt.signkey}")
+    private String signkey;
+
+    @Bean
+    public JwtAccessTokenConverter jwtAccessTokenConverter() {
+        JwtAccessTokenConverter converter = new JwtAccessTokenConverter();
+
+        converter.setSigningKey(signkey);
+        return converter;
+    }
 
     @Override
     public void configure(AuthorizationServerSecurityConfigurer security) {
@@ -48,5 +60,10 @@ public class Oauth2AuthorizationConfig extends AuthorizationServerConfigurerAdap
         clients.jdbc(dataSource).passwordEncoder(passwordEncoder);
     }
 
+    @Override
+    public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
+        super.configure(endpoints);
 
+        endpoints.accessTokenConverter(jwtAccessTokenConverter()).userDetailsService(customUserDetailService);
+    }
 }
