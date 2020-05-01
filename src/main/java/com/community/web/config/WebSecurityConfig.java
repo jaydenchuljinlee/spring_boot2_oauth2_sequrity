@@ -17,9 +17,6 @@ import org.springframework.security.config.oauth2.client.CommonOAuth2Provider;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
-import org.springframework.security.oauth2.config.annotation.configurers.ClientDetailsServiceConfigurer;
-import org.springframework.security.oauth2.config.annotation.web.configuration.EnableAuthorizationServer;
-import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.csrf.CsrfFilter;
 import org.springframework.web.filter.CharacterEncodingFilter;
 
@@ -39,18 +36,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(AuthenticationManagerBuilder auth) {
         auth.authenticationProvider(authenticationProvider);
     }
-
-    /*//clients resource 설정
-    protected void configure(ClientDetailsServiceConfigurer clients) throws Exception{
-
-        clients.inMemory()
-                .withClient("testClient")
-                .secret("testSecret")
-                .redirectUris("http://localhost:8080/login/oauth2/callback")
-                .authorizedGrantTypes("authorization_code")
-                .scopes("read","write")
-                .accessTokenValiditySeconds(30000);
-    }*/
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
