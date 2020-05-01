@@ -57,7 +57,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         CharacterEncodingFilter filter = new CharacterEncodingFilter();
 
         http.authorizeRequests()
-                .antMatchers("/","/oauth/**","/oauth2/callback","/oauth/token", "/oauth2/**", "/login/**","/css/**", "/images/**", "/js/**", "/console/**")
+                .antMatchers("/","/oauth/**","/oauth2/callback","/oauth/token", "/oauth2/**", "/login/**","/css/**", "/images/**", "/js/**", "/console/**","/swagger-ui.html")
                     .permitAll()
                 .antMatchers("/facebook")
                     .hasAnyAuthority(SocialType.FACEBOOK.getRoleType())
