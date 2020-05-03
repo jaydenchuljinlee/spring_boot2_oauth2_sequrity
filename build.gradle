@@ -43,7 +43,8 @@ dependencies {
 	/* Spring Security */
 	implementation 'org.springframework.cloud:spring-cloud-starter-oauth2:2.1.2.RELEASE'
 	implementation('org.springframework.security:spring-security-oauth2-client') // �겢�씪�씠�뼵�듃 �옄�룞 �씤利� �꽕�젙
-	//implementation('org.springframework.security:spring-security-oauth2-jose') // JWT(Json Web Token) 沅뚰븳 �쟾�넚 愿��젴 �봽�젅�엫�썙�겕
+	implementation('org.springframework.security:spring-security-oauth2-jose') // JWT(Json Web Token) 沅뚰븳 �쟾�넚 愿��젴 �봽�젅�엫�썙�겕
+	
 	implementation('org.springframework.boot:spring-boot-starter-security')
 
 	implementation 'com.google.code.gson:gson'
