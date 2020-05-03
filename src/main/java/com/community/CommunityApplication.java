@@ -5,9 +5,12 @@ import com.community.web.domain.User;
 import com.community.web.domain.enums.BoardType;
 import com.community.web.repository.BoardRepository;
 import com.community.web.repository.UserRepository;
+import org.apache.catalina.connector.Connector;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
+import org.springframework.boot.web.servlet.server.ServletWebServerFactory;
 import org.springframework.context.annotation.Bean;
 
 import java.time.LocalDateTime;
@@ -19,17 +22,18 @@ public class CommunityApplication {
 		SpringApplication.run(CommunityApplication.class, args);
 	}
 
-	/*@Bean
-	public CommandLineRunner commandLineRunner(UserRepository userRepository, BoardRepository boardRepository) {
-		return args -> {
-			User user = User.builder().name("유현재").password("hj24").email("aaa@naver.com").createdDate(LocalDateTime.now()).build();
+	@Bean
+	public ServletWebServerFactory servletContainer() {
+		TomcatServletWebServerFactory tomcat = new TomcatServletWebServerFactory();
+		tomcat.addAdditionalTomcatConnectors(createStandardConnector());
+		return tomcat;
+	}
 
-			userRepository.save(user);
+	private Connector createStandardConnector() {
+		Connector connector = new Connector("org.apache.coyote.http11.Http11NioProtocol");
+		connector.setPort(8080);
+		return connector;
+	}
 
-			for (int i = 0; i < 156; i++) {
-				boardRepository.save(Board.builder().title("타이틀"+i).subTitle("서브타이틀"+i).content("내용"+i).boardType(BoardType.free).createdDate(LocalDateTime.now()).user(user).build());
-			}
-		};
-	}*/
 }
 
