@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.security.oauth2.client.OAuth2ClientProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -25,6 +26,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Slf4j
+@Order(2)
 @EnableWebSecurity // 웹시큐리티 사용하겠다는 어노테이션
 @Configuration
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
