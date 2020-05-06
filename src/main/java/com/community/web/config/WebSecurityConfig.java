@@ -82,8 +82,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Bean
     public ClientRegistrationRepository clientRegistrationRepository(OAuth2ClientProperties oAuth2ClientProperties,
-                                                                     @Value("${custom.oauth2.kakao.client-id}") String kakaoClientId,
-                                                                     @Value("${custom.oauth2.kakao.client-secret}") String kakaoClientSecret) {
+                                                                     @Value("${custom.oauth2.kakao.client-id}") String kakaoClientId) {
         List<ClientRegistration> registrationList =
                 oAuth2ClientProperties.getRegistration().keySet().stream()
                 .map(client -> getRegistration(oAuth2ClientProperties, client))
@@ -93,7 +92,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
         registrationList.add(CustomOAuth2Provider.KAKAO.getBuilder("kakao")
             .clientId(kakaoClientId)
-            .clientSecret(kakaoClientSecret)
             .jwkSetUri("test")
             .build());
 
